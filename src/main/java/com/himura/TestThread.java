@@ -4,53 +4,52 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ProducerCustomer2 {
+public class TestThread {
     public static void main(String[] args) {
-        Good2 good2 = new Good2();
+        Good3 good3 = new Good3();
         new Thread(()->{
-            for (int i = 0; i < 10; i++) {
-                good2.produce();
+            for (int i = 0; i < 5; i++) {
+                good3.produce();
             }
-        },"producer").start();
+        }).start();
         new Thread(()->{
-            for (int i = 0; i < 10; i++) {
-                good2.buy();
+            for (int i = 0; i < 5; i++) {
+                good3.sale();
             }
-        },"customer").start();
+        }).start();
     }
 }
-
-class Good2 {
-    private int num = 0;
+class Good3 {
+    private int number = 0;
     private Lock lock = new ReentrantLock();
     private Condition condition = lock.newCondition();
 
     public void produce() {
         lock.lock();
-        // 等待
         try {
-            while (num != 0) {
+            while(number != 0) {
                 condition.await();
             }
-            num++;
+            number ++;
+            System.out.println("生产者生产了"+ number);
             condition.signalAll();
-            System.out.println(Thread.currentThread().getName()+"=>"+num);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             lock.unlock();
         }
     }
-    public void buy() {
+
+    public void sale() {
         lock.lock();
         try {
-            while (num == 0) {
+            while(number==0) {
                 condition.await();
             }
-            num--;
+            number --;
+            System.out.println("消费者购买了"+number);
             condition.signalAll();
-            System.out.println(Thread.currentThread().getName()+"=>"+num);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             lock.unlock();
